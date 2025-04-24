@@ -49,6 +49,7 @@ const EventsPage = () => {
           paddingBottom: 4,
           paddingTop: 4,
           gap: 4,
+          boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.6)",
         }}
       >
         <Stack

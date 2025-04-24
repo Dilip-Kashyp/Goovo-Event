@@ -15,11 +15,3 @@ api.interceptors.response.use(
   }
 );
 
-export function getresponseError(error) {
-  const isString = typeof error?.response?.data?.message === "string";
-  return {
-    message: isString
-      ? error?.response?.data?.message || "Internal Server Error"
-      : "Internal Server Error",
-  };
-}
