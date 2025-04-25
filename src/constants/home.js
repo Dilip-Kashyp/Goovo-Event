@@ -9,6 +9,19 @@ export const HOME_PAGE_CONFIG = {
       },
     },
   },
+  SEARCH_BOX: {
+    inputProps: {
+      variant: "outlined",
+      placeholder: "Search by event name, location, or organizer",
+      fullWidth: true,
+      sx: {
+        width: { xs: 300, sm: 500 },
+        "& .MuiOutlinedInput-root": {
+          "&.Mui-focused fieldset": { borderColor: "#E82677" },
+        },
+      },
+    },
+  },
   SUBHEADER: {
     typographyProps: {
       children:
@@ -87,10 +100,4 @@ export const HOME_PAGE_CONFIG = {
       },
     },
   }),
-
-  NOTIFICATIONS_MESSAGES: {
-    SUCCESS: { message: "Events fetched successfully" },
-    ERROR: { message: "No events found" },
-    SEARCH_ERROR: { message: "Please enter a search term" },
-  },
 };

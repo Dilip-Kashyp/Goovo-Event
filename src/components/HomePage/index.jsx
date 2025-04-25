@@ -1,18 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Container, Stack, Typography } from "../common";
-import { CircularProgress, Pagination } from "@mui/material";
+import { Container, Stack, Typography, Input } from "../common";
+import { CircularProgress, Pagination, TextField } from "@mui/material";
 import { HOME_PAGE_CONFIG } from "@/constants";
 import { usegetEventData } from "@/api";
 import EventCard from "./eventCard";
 
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
   const itemsPerPage = 9;
 
-  const { HEADER, SUBHEADER, ERROR } = HOME_PAGE_CONFIG;
+  const { HEADER, SUBHEADER, ERROR, SEARCH_BOX } = HOME_PAGE_CONFIG;
 
   const fetchEvents = usegetEventData({
     mutationConfig: {
@@ -20,7 +21,7 @@ const EventsPage = () => {
         setEvents(res);
         setError("");
       },
-      onError: (err) => {
+      onError: () => {
         setError("Failed to fetch events. Please try again.");
       },
     },
@@ -30,7 +31,19 @@ const EventsPage = () => {
     fetchEvents.mutate({});
   }, []);
 
-  const paginatedEvents = events?.slice(
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+    setPage(1);
+  };
+
+  const filteredEvents = events.filter(
+    (event) =>
+      event?.eventName.toLowerCase().includes(searchQuery) ||
+      event?.location.toLowerCase().includes(searchQuery) ||
+      event?.organizer.toLowerCase().includes(searchQuery)
+  );
+
+  const paginatedEvents = filteredEvents.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
@@ -65,6 +78,19 @@ const EventsPage = () => {
           <Typography {...SUBHEADER} />
         </Stack>
 
+        <Stack
+          stackProps={{
+            alignItems: "center",
+            padding: 2,
+          }}
+        >
+          <Input
+            {...SEARCH_BOX}
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </Stack>
+
         {fetchEvents?.isPending || error ? (
           <Stack
             stackProps={{
@@ -89,29 +115,39 @@ const EventsPage = () => {
                 gap: 4,
               }}
             >
-              {paginatedEvents.map((event, idx) => (
-                <EventCard
-                  key={idx}
-                  title={event.eventName}
-                  location={event.location}
-                  date={event.date}
-                  organizer={event.organizer}
+              {paginatedEvents?.length > 0 ? (
+                paginatedEvents?.map((event, idx) => (
+                  <EventCard
+                    key={idx}
+                    title={event.eventName}
+                    location={event.location}
+                    date={event.date}
+                    organizer={event.organizer}
+                  />
+                ))
+              ) : (
+                <Typography
+                  {...ERROR(
+                    "No events found. Please try a different search term."
+                  )}
                 />
-              ))}
+              )}
             </Stack>
           </>
         )}
 
-        <Stack
-          stackProps={{ alignItems: "center", marginTop: { sm: 4, xs: 2 } }}
-        >
-          <Pagination
-            count={Math.ceil(events?.length / itemsPerPage)}
-            page={page}
-            onChange={handleChange}
-            color="secondary"
-          />
-        </Stack>
+        {filteredEvents.length > itemsPerPage && (
+          <Stack
+            stackProps={{ alignItems: "center", marginTop: { sm: 4, xs: 2 } }}
+          >
+            <Pagination
+              count={Math.ceil(filteredEvents.length / itemsPerPage)}
+              page={page}
+              onChange={handleChange}
+              color="secondary"
+            />
+          </Stack>
+        )}
       </Stack>
     </Container>
   );
